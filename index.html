@@ -1,0 +1,52 @@
+<canvas id="myChart" width="400" height="400"></canvas>
+<script>
+var fetchedData, request = new XMLHttpRequest,
+    labels = [],
+    data = [],
+    data2 = [];
+request.open("GET", "https://api.apify.com/v2/acts/northeastern_data~nu-covid-data/runs/last/dataset/items?token=apify_api_92EfYBvbzj1WGfbnqCFfJ4HvZjbIJz0j6wVb&status=SUCCEEDED"), request.setRequestHeader("Content-Type", "application/json"), request.onreadystatechange = function() {
+    if (4 === this.readyState) {
+        var t = JSON.parse(this.responseText);
+        for (var e in fetchedData = t[0])
+            if (labels.push(fetchedData[e][0]), data.push(parseInt(100 * fetchedData[e][5].slice(0, fetchedData[e][5].length - 2)) / 100), e > 5) {
+                for (var a = 0, s = 1; s < 8; s++) a += data[data.length - s];
+                data2.push(parseInt(a / 7 * 100) / 100)
+            } else {
+                for (a = 0, s = 1; s < e; s++) a += data[data.length - s];
+                data2.push(parseInt(a / (e > 0 ? e : 1) * 100) / 100)
+            } const n = document.getElementById("myChart").getContext("2d");
+        new Chart(n, {
+            type: "line",
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: "7-Day Average",
+                    data: data2,
+                    fill: !1,
+                    borderColor: "rgb(245, 114, 66)",
+                    tension: .5
+                }, {
+                    label: "Daily Positive %",
+                    data: data,
+                    fill: !1,
+                    borderColor: "rgb(75, 192, 192)",
+                    tension: .5
+                }]
+            },
+            options: {
+                plugins: {
+                    title: {
+                        display: !0,
+                        text: "Northeastern University's COVID Data in Perspective"
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: !0
+                    }
+                }
+            }
+        })
+    }
+}, request.send(JSON.stringify({}));
+</script>
