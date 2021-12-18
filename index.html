@@ -10,22 +10,23 @@ var fetchedData, request = new XMLHttpRequest,
     labels = [],
     data = [],
     data2 = [],
+    data3 = [],
     dict = {};
 request.open("GET", "https://api.apify.com/v2/acts/northeastern_data~nu-covid-data/runs/last/dataset/items?token=apify_api_92EfYBvbzj1WGfbnqCFfJ4HvZjbIJz0j6wVb&status=SUCCEEDED"), request.setRequestHeader("Content-Type", "application/json"), request.onreadystatechange = function() {
     if (4 === this.readyState) {
-        var e = JSON.parse(this.responseText);
-        for (var t in fetchedData = e[0]) {
-            labels.push(fetchedData[t][0]), data.push(parseInt(100 * fetchedData[t][5].slice(0, fetchedData[t][5].length - 2)) / 100);
+        var t = JSON.parse(this.responseText);
+        for (var e in fetchedData = t[0]) {
+            labels.push(fetchedData[e][0]), data.push(parseInt(100 * fetchedData[e][5].slice(0, fetchedData[e][5].length - 2)) / 100);
             var a = 0,
                 s = 0;
-            if (t > 5) {
-                for (var r = 0; r < 7; r++) a += parseInt(fetchedData[t - r][4]), s += parseInt(fetchedData[t - r][2]);
+            if (e > 5) {
+                for (var i = 0; i < 7; i++) a += parseInt(fetchedData[e - i][4]), s += parseInt(fetchedData[e - i][2]);
                 data2.push(parseInt(1e4 * a / s) / 100)
             } else data2.push(NaN);
-            dict[fetchedData[t][0]] = [fetchedData[t][2], fetchedData[t][4]]
+            data3.push(e < 1 ? parseInt(fetchedData[e][4]) : data3[data3.length - 1] + parseInt(fetchedData[e][4])), dict[fetchedData[e][0]] = [fetchedData[e][2], fetchedData[e][4]]
         }
-        const i = document.getElementById("myChart").getContext("2d");
-        new Chart(i, {
+        const n = document.getElementById("myChart").getContext("2d");
+        new Chart(n, {
             type: "line",
             data: {
                 labels: labels,
@@ -34,13 +35,21 @@ request.open("GET", "https://api.apify.com/v2/acts/northeastern_data~nu-covid-da
                     data: data2,
                     fill: !1,
                     borderColor: "rgb(245, 114, 66)",
-                    tension: .5
+                    tension: .5,
+                    yAxisID: "y"
                 }, {
                     label: "Daily Positive",
                     data: data,
                     fill: !1,
                     borderColor: "rgb(75, 192, 192)",
-                    tension: .5
+                    tension: .5,
+                    yAxisID: "y"
+                }, {
+                    label: "Total Positive Tests",
+                    data: data3,
+                    fill: !1,
+                    tension: .5,
+                    yAxisID: "yTot"
                 }]
             },
             options: {
@@ -51,8 +60,8 @@ request.open("GET", "https://api.apify.com/v2/acts/northeastern_data~nu-covid-da
                     },
                     tooltip: {
                         callbacks: {
-                            label: function(e) {
-                                return 1 == e.datasetIndex ? [e.dataset.label + ": " + e.raw + "%", "Positive: " + dict[e.label][1], "Negative: " + dict[e.label][0]] : e.dataset.label + ": " + e.raw + "%"
+                            label: function(t) {
+                                return 1 == t.datasetIndex ? [t.dataset.label + ": " + t.raw + "%", "Positive: " + dict[t.label][1], "Negative: " + dict[t.label][0]] : t.dataset.label + ": " + t.raw + (0 == t.datasetIndex ? "%" : "")
                             }
                         }
                     }
@@ -64,6 +73,14 @@ request.open("GET", "https://api.apify.com/v2/acts/northeastern_data~nu-covid-da
                             display: !0,
                             text: "Positive COVID Test Percentage (%)"
                         }
+                    },
+                    yTot: {
+                        beginAtZero: !0,
+                        title: {
+                            display: !0,
+                            text: "Total COVID Positive Tests"
+                        },
+                        position: "right"
                     }
                 }
             }
