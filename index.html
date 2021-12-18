@@ -18,10 +18,10 @@ request.open("GET", "https://api.apify.com/v2/acts/northeastern_data~nu-covid-da
             var a = 0,
                 s = 0;
             if (t > 5) {
-                for (var r = 0; r < 7; r++) a += parseInt(fetchedData[t - r][4]), s += parseInt(fetchedData[t - r][1]);
+                for (var r = 0; r < 7; r++) a += parseInt(fetchedData[t - r][4]), s += parseInt(fetchedData[t - r][2]);
                 data2.push(parseInt(1e4 * a / s) / 100)
             } else {
-                for (r = 0; r < t; r++) a += parseInt(fetchedData[t - r][4]), s += parseInt(fetchedData[t - r][1]);
+                for (r = 0; r < t; r++) a += parseInt(fetchedData[t - r][4]), s += parseInt(fetchedData[t - r][2]);
                 data2.push(parseInt(1e4 * a / s) / 100)
             }
         }
