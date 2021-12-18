@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html>
-<canvas id="myChart" width="400" height="400"></canvas>
+<canvas id="myChart" width="600" height="600"></canvas>
 <script>
 var fetchedData, request = new XMLHttpRequest,
     labels = [],
@@ -51,5 +51,12 @@ request.open("GET", "https://api.apify.com/v2/acts/northeastern_data~nu-covid-da
         })
     }
 }, request.send(JSON.stringify({}));
+
+window.addEventListener('beforeprint', () => {
+  myChart.resize(600, 600);
+});
+window.addEventListener('afterprint', () => {
+  myChart.resize();
+});
 </script>
 </html>
