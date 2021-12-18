@@ -9,7 +9,8 @@
 var fetchedData, request = new XMLHttpRequest,
     labels = [],
     data = [],
-    data2 = [];
+    data2 = [],
+    dict = {};
 request.open("GET", "https://api.apify.com/v2/acts/northeastern_data~nu-covid-data/runs/last/dataset/items?token=apify_api_92EfYBvbzj1WGfbnqCFfJ4HvZjbIJz0j6wVb&status=SUCCEEDED"), request.setRequestHeader("Content-Type", "application/json"), request.onreadystatechange = function() {
     if (4 === this.readyState) {
         var e = JSON.parse(this.responseText);
@@ -20,13 +21,11 @@ request.open("GET", "https://api.apify.com/v2/acts/northeastern_data~nu-covid-da
             if (t > 5) {
                 for (var r = 0; r < 7; r++) a += parseInt(fetchedData[t - r][4]), s += parseInt(fetchedData[t - r][2]);
                 data2.push(parseInt(1e4 * a / s) / 100)
-            } else {
-                for (r = 0; r < t; r++) a += parseInt(fetchedData[t - r][4]), s += parseInt(fetchedData[t - r][2]);
-                data2.push(parseInt(1e4 * a / s) / 100)
-            }
+            } else data2.push(NaN);
+            dict[fetchedData[t][0]] = [fetchedData[t][2], fetchedData[t][4]]
         }
-        const n = document.getElementById("myChart").getContext("2d");
-        new Chart(n, {
+        const i = document.getElementById("myChart").getContext("2d");
+        new Chart(i, {
             type: "line",
             data: {
                 labels: labels,
@@ -37,7 +36,7 @@ request.open("GET", "https://api.apify.com/v2/acts/northeastern_data~nu-covid-da
                     borderColor: "rgb(245, 114, 66)",
                     tension: .5
                 }, {
-                    label: "Daily Positive %",
+                    label: "Daily Positive",
                     data: data,
                     fill: !1,
                     borderColor: "rgb(75, 192, 192)",
@@ -49,11 +48,22 @@ request.open("GET", "https://api.apify.com/v2/acts/northeastern_data~nu-covid-da
                     title: {
                         display: !0,
                         text: "Northeastern University's COVID Data in Perspective"
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(e) {
+                                return 1 == e.datasetIndex ? [e.dataset.label + ": " + e.raw + "%", "Positive: " + dict[e.label][1], "Negative: " + dict[e.label][0]] : e.dataset.label + ": " + e.raw + "%"
+                            }
+                        }
                     }
                 },
                 scales: {
                     y: {
-                        beginAtZero: !0
+                        beginAtZero: !0,
+                        title: {
+                            display: !0,
+                            text: "Positive COVID Test Percentage (%)"
+                        }
                     }
                 }
             }
@@ -65,5 +75,8 @@ request.open("GET", "https://api.apify.com/v2/acts/northeastern_data~nu-covid-da
     myChart.resize()
 });
 </script>
+<h5>
+  Data From <a href="https://news.northeastern.edu/coronavirus/reopening/testing-dashboard/">NEU Covid Dashboard</a>
+</h5>
 </body>
 </html>
